@@ -95,5 +95,20 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+// Wrong (do NOT do this in frontend!)
+// import { preSignup } from "../../../Backend-Coding4u-main/controllers/auth.js";
+
+// Correct: call the backend API
+const handleSignup = async (userData) => {
+  const res = await fetch("https://your-backend-domain.com/api/pre-signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData),
+  });
+
+  const data = await res.json();
+  return data;
+};
+
 
 startServer();
