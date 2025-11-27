@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-import User from "../../models/user"; // adjust path if needed
-
+import User from "../../models/User.js"; // adjust path if needed
+import { preSignup } from "../../controllers/auth.js";
 // --- Configure Nodemailer
 const transporter = nodemailer.createTransport({
   service: "Gmail",
