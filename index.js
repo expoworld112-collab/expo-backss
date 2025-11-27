@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
@@ -6,7 +5,6 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { check } from "express-validator";
 import { runvalidation } from "./validators/index.js";
-
 import {
   preSignup,
   signup,
@@ -20,56 +18,54 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-
+// ---------------- Middleware ----------------
 app.use(express.json());
 app.use(cookieParser());
 
-
+// ---------------- CORS ----------------
 const allowedOrigins = [
   "https://efronts.vercel.app",
   "https://expo-front-one.vercel.app",
-  "http://localhost:3000"
+  "http://localhost:3000",
 ];
 
 app.use(
   cors({
-    origin: (origin, cb) => {
-      if (!origin) return cb(null, true); // allow Postman / server-to-server
-      if (allowedOrigins.includes(origin)) return cb(null, true);
-      return cb(new Error("CORS blocked"));
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // server-to-server requests
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// Preflight support
-app.options("*", cors());
+// Preflight handling
+app.options("*", cors({ origin: allowedOrigins, credentials: true }));
 
-// ----------------------------------
-// VALIDATORS
-// ----------------------------------
+// ---------------- Validators ----------------
 const usersignupvalidator = [
   check("name").isLength({ min: 5 }).withMessage("Name must be at least 5 characters"),
   check("username").isLength({ min: 3, max: 10 }).withMessage("Username must be 3-10 characters"),
   check("email").isEmail().withMessage("Must be a valid email"),
-  check("password").matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/)
-    .withMessage("Weak password")
+  check(
+    "password",
+    "Password must have 1 lowercase, 1 uppercase, 1 number, 1 special char and min 8 chars"
+  ).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/),
 ];
 
-const usersigninvalidator = [check("email").isEmail().withMessage("Must be valid email")];
-
-const forgotPasswordValidator = [check("email").isEmail().withMessage("Must be valid email")];
-
+const usersigninvalidator = [check("email").isEmail().withMessage("Must be a valid email")];
+const forgotPasswordValidator = [check("email").isEmail().withMessage("Must be a valid email")];
 const resetPasswordValidator = [
-  check("newPassword").matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/)
-    .withMessage("Weak password")
+  check(
+    "newPassword",
+    "Password must have 1 lowercase, 1 uppercase, 1 number, 1 special char and min 8 chars"
+  ).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/),
 ];
 
-// ----------------------------------
-// ROUTES
-// ----------------------------------
+// ---------------- Routes ----------------
 app.post("/api/pre-signup", usersignupvalidator, runvalidation, preSignup);
 app.post("/api/signup", signup);
 app.post("/api/signin", usersigninvalidator, runvalidation, signin);
@@ -78,7 +74,7 @@ app.put("/api/forgot-password", forgotPasswordValidator, runvalidation, forgotPa
 app.put("/api/reset-password", resetPasswordValidator, runvalidation, resetPassword);
 
 // Health check
-app.get("/", (req, res) => res.json({ message: "Backend running 🚀" }));
+app.get("/", (req, res) => res.json({ message: "Backend running ✅" }));
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ error: "Route not found" }));
@@ -89,17 +85,16 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || "Internal server error" });
 });
 
-
-const start = async () => {
+// ---------------- MongoDB ----------------
+const startServer = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB Connected ✔");
-    app.listen(PORT, () => console.log("Server running on PORT", PORT));
+    console.log("✅ MongoDB connected");
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   } catch (err) {
-    console.error(err);
+    console.error("❌ MongoDB connection error:", err);
+    process.exit(1);
   }
 };
 
-start();
-
-export default app;
+startServer();
