@@ -1,5 +1,4 @@
-import User from "../models/user.js";
-<<<<<<< HEAD
+import User from "../models/User.js";
 import Blog from "../models/blog.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -8,23 +7,19 @@ import "dotenv/config.js";
 import nodemailer from "nodemailer";
 import { errorHandler } from "../helpers/dbErrorHandler.js";
 
-// --- Nodemailer transporter
-=======
-import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
-
 // -------------------- Mailer --------------------
->>>>>>> e8a0b69400c985ecdc3d87f5e13e4a922745963b
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
   tls: { rejectUnauthorized: false },
-<<<<<<< HEAD
-  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
 });
 
-// ======================= Pre-signup =======================
+// -------------------- Pre-signup --------------------
 export const preSignup = async (req, res) => {
   const { name, username, email, password } = req.body;
   if (!name || !username || !email || !password)
@@ -35,32 +30,16 @@ export const preSignup = async (req, res) => {
     if (existingUser) return res.status(400).json({ error: "Email already taken" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const token = jwt.sign(
       { name, username, email, password: hashedPassword },
       process.env.JWT_ACCOUNT_ACTIVATION,
       { expiresIn: "10m" }
     );
-=======
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
-
-// -------------------- Pre-signup --------------------
-export const preSignup = async (req, res) => {
-  try {
-    const { name, email, username } = req.body;
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser) return res.status(400).json({ error: "Email is taken" });
-
-    const token = jwt.sign({ name, username, email }, process.env.JWT_ACCOUNT_ACTIVATION, { expiresIn: "10m" });
->>>>>>> e8a0b69400c985ecdc3d87f5e13e4a922745963b
 
     await transporter.sendMail({
       from: process.env.SMTP_USER,
       to: email,
-<<<<<<< HEAD
       subject: "Activate your account",
       html: `<p>Hi ${name},</p>
              <p>Click below to activate your account:</p>
@@ -74,7 +53,7 @@ export const preSignup = async (req, res) => {
   }
 };
 
-// ======================= Signup =======================
+// -------------------- Signup --------------------
 export const signup = async (req, res) => {
   const { token } = req.body;
   if (!token) return res.status(400).json({ error: "No token provided" });
@@ -82,79 +61,54 @@ export const signup = async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_ACCOUNT_ACTIVATION);
     const { name, username, email, password } = decoded;
-=======
-      subject: "Account Activation",
-      html: `<p>Activate your account: <a href="${process.env.MAIN_URL}/auth/account/activate/${token}">Click here</a></p>`,
-    });
-
-    res.json({ message: `Email sent to ${email}. Follow instructions to activate.` });
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({ error: "Pre-signup failed" });
-  }
-};
-
-// -------------------- Signup --------------------
-export const signup = async (req, res) => {
-  const { token, password } = req.body;
-  if (!token || !password) return res.status(400).json({ error: "Token and password required" });
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_ACCOUNT_ACTIVATION);
-    const { name, username, email } = decoded;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ error: "Email already registered" });
->>>>>>> e8a0b69400c985ecdc3d87f5e13e4a922745963b
 
     const profile = `${process.env.MAIN_URL}/profile/${username.toLowerCase()}`;
     const user = new User({ name, username, email, password, profile });
     await user.save();
 
-<<<<<<< HEAD
-    res.json({ message: "Signup success! Please sign in." });
-  } catch (err) {
-    console.error("Signup Error:", err);
-=======
     res.json({ message: "Signup successful. Please sign in." });
   } catch (err) {
-    console.error(err);
->>>>>>> e8a0b69400c985ecdc3d87f5e13e4a922745963b
+    console.error("Signup Error:", err);
     res.status(401).json({ error: "Expired or invalid link. Signup again." });
   }
 };
 
-<<<<<<< HEAD
-// ======================= Signin =======================
+// -------------------- Signin --------------------
 export const signin = async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const user = await User.findOne({ email });
-    if (!user)
-      return res.status(400).json({ error: "User with that email does not exist." });
+    if (!user) return res.status(400).json({ error: "User with that email does not exist." });
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password || user.hashed_password);
     if (!isMatch) return res.status(400).json({ error: "Email and password do not match." });
 
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "100d" });
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    res.cookie("token", token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }); // 1 day
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+    });
 
-    const { _id, username, name, email: userEmail, role } = user;
-    res.json({ token, user: { _id, username, name, email: userEmail, role } });
+    const { _id, username, name, role } = user;
+    res.json({ token, user: { _id, username, name, email, role } });
   } catch (err) {
-    res.status(400).json({ error: errorHandler(err) });
+    console.error(err);
+    res.status(400).json({ error: "Signin failed" });
   }
 };
 
-// ======================= Signout =======================
+// -------------------- Signout --------------------
 export const signout = (req, res) => {
   res.clearCookie("token");
   res.json({ message: "Signout success" });
 };
 
-// ======================= Middleware =======================
+// -------------------- Middleware --------------------
 export const requireSignin = expressjwt({
   secret: process.env.JWT_SECRET,
   algorithms: ["HS256"],
@@ -184,7 +138,7 @@ export const adminMiddleware = async (req, res, next) => {
   }
 };
 
-// ======================= Blog Authorization =======================
+// -------------------- Blog Authorization --------------------
 export const canUpdateDeleteBlog = async (req, res, next) => {
   try {
     const slug = req.params.slug.toLowerCase();
@@ -200,7 +154,7 @@ export const canUpdateDeleteBlog = async (req, res, next) => {
   }
 };
 
-// ======================= Forgot Password =======================
+// -------------------- Forgot Password --------------------
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
@@ -208,7 +162,6 @@ export const forgotPassword = async (req, res) => {
     if (!user) return res.status(404).json({ error: "User with that email does not exist" });
 
     const token = jwt.sign({ _id: user._id }, process.env.JWT_RESET_PASSWORD, { expiresIn: "10m" });
-
     await user.updateOne({ resetPasswordLink: token });
 
     await transporter.sendMail({
@@ -222,61 +175,6 @@ export const forgotPassword = async (req, res) => {
 
     res.json({ message: `Email sent to ${email}. Link expires in 10 minutes.` });
   } catch (err) {
-    res.status(400).json({ error: errorHandler(err) });
-  }
-};
-
-// ======================= Reset Password =================
-=======
-// -------------------- Signin --------------------
-export const signin = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: "Email not found" });
-
-    if (!(await user.authenticate(password))) return res.status(400).json({ error: "Incorrect password" });
-
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-    });
-
-    const { _id, username, name, role } = user;
-    res.json({ token, user: { _id, username, name, email, role } });
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({ error: "Signin failed" });
-  }
-};
-
-// -------------------- Signout --------------------
-export const signout = (req, res) => {
-  res.clearCookie("token");
-  res.json({ message: "Signout successful" });
-};
-
-// -------------------- Forgot Password --------------------
-export const forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: "User not found" });
-
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_RESET_PASSWORD, { expiresIn: "10m" });
-
-    await transporter.sendMail({
-      from: process.env.SMTP_USER,
-      to: email,
-      subject: "Password Reset",
-      html: `<p>Reset your password: <a href="${process.env.MAIN_URL}/auth/password/reset/${token}">Click here</a></p>`,
-    });
-
-    res.json({ message: `Email sent to ${email}. Follow instructions to reset password.` });
-  } catch (err) {
     console.error(err);
     res.status(400).json({ error: "Forgot password failed" });
   }
@@ -287,7 +185,6 @@ export const resetPassword = async (req, res) => {
   const { resetPassword, token } = req.body;
   try {
     const decoded = jwt.verify(token, process.env.JWT_RESET_PASSWORD);
-
     const user = await User.findById(decoded._id);
     if (!user) return res.status(400).json({ error: "User not found" });
 
@@ -300,4 +197,3 @@ export const resetPassword = async (req, res) => {
     res.status(401).json({ error: "Expired or invalid token" });
   }
 };
->>>>>>> e8a0b69400c985ecdc3d87f5e13e4a922745963b

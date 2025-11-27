@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import User from "../models/User.js";
 import Blog from "../models/blog.js";
 import { errorHandler } from "../helpers/dbErrorHandler.js";
 import fs from "fs";
