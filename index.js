@@ -32,7 +32,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // server-to-server requests
+      if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error("Not allowed by CORS"));
     },
@@ -42,7 +42,6 @@ app.use(
   })
 );
 
-// Preflight handling
 app.options("*", cors({ origin: allowedOrigins, credentials: true }));
 
 // ---------------- Validators ----------------
