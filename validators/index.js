@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { validationResult } from "express-validator";
 
 export function runvalidation (req,res,next){   
@@ -8,7 +7,6 @@ export function runvalidation (req,res,next){
     }
     next();
 }
-=======
 import { check, validationResult } from "express-validator";
 
 // Middleware to handle validation results
@@ -48,4 +46,3 @@ export default {
   forgotPasswordValidator,
   resetPasswordValidator,
 };
->>>>>>> e8a0b69400c985ecdc3d87f5e13e4a922745963b

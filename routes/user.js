@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 
->>>>>>> e8a0b69400c985ecdc3d87f5e13e4a922745963b
 import express from "express";
 const router = express.Router();
 import { requireSignin, authMiddleware, adminMiddleware } from "../controllers/auth.js";

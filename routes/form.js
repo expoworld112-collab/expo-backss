@@ -2,12 +2,9 @@ const router = express.Router();
 import { contactForm, contactBlogAuthorForm } from "../controllers/form.js"
 import express from "express"
 import { check } from "express-validator";
-<<<<<<< HEAD
 import { runvalidation } from "../validators/index.js";
 
-=======
 import { runvalidation } from "../validators/index.js"
->>>>>>> e8a0b69400c985ecdc3d87f5e13e4a922745963b
 
 const contactFormValidator = [
     check('name')

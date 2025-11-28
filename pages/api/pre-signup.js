@@ -6,6 +6,8 @@ import nodemailer from "nodemailer";
 import User from "../../models/User.js"; // adjust path if needed
 import { preSignup } from "../../controllers/auth.js";
 // --- Configure Nodemailer
+ import corsAndProxy from "../../lib/api/apiProxy.js";
+
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {

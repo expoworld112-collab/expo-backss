@@ -1,5 +1,4 @@
 import express from "express";
-<<<<<<< HEAD
 import mongoose from "mongoose";
 import slugify from "slugify";
 import Blog from "../models/blog.js";
