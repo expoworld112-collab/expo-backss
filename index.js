@@ -71,6 +71,7 @@ app.post("/api/signin", usersigninvalidator, runvalidation, signin);
 app.get("/api/signout", signout);
 app.put("/api/forgot-password", forgotPasswordValidator, runvalidation, forgotPassword);
 app.put("/api/reset-password", resetPasswordValidator, runvalidation, resetPassword);
+app.use("/api/auth", require("./routes/auth"));
 
 // Health check
 app.get("/", (req, res) => res.json({ message: "Backend running ✅" }));

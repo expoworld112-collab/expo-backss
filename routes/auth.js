@@ -181,4 +181,24 @@ export const resetPassword = async (req, res) => {
   } catch (e) {
     return res.status(400).json({ error: "Expired or invalid token" });
   }
+  // back/routes/auth.js
+const express = require("express");
+const router = express.Router();
+const User = require("../models/User");
+
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ msg: "User not found" });
+
+  if (user.password !== password) {
+    return res.status(400).json({ msg: "Invalid password" });
+  }
+
+  res.json({ msg: "Login successful", user });
+});
+
+module.exports = router;
+
 };
