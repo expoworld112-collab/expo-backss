@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
-// const sgMail = require('@sendgrid/mail'); 
->>>>>>> e8a0b69400c985ecdc3d87f5e13e4a922745963b
+
 import sgMail from "@sendgrid/mail"
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 

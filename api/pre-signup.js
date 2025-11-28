@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import User from "../../models/user.js";  // <-- Ensure this path exists on Vercel
+import User from "../../models/User.js";  // <-- Ensure this path exists on Vercel
 
 dotenv.config({ path: "./.env" });
 

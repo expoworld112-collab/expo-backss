@@ -1,7 +1,7 @@
 import Blog from "../models/blog.js";
 import { errorHandler } from "../helpers/dbErrorHandler.js";
 import slugify from "slugify";
-import User from "../models/user.js";
+import User from "../models/User.js";
 import striptags from 'striptags';
 import "dotenv/config.js";
 import multer from 'multer';

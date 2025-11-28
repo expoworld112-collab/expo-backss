@@ -2,11 +2,6 @@ import Tag from '../models/tag.js';
 import slugify from "slugify";
 import { errorHandler } from "../helpers/dbErrorHandler.js";
 import Blog from "../models/blog.js"
-<<<<<<< HEAD
-=======
-// import NodeCache from "node-cache"
-// const myCache = new NodeCache();
->>>>>>> e8a0b69400c985ecdc3d87f5e13e4a922745963b
 
 
 export const create = async (req, res) => {
