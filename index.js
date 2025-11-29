@@ -100,16 +100,31 @@ const startServer = async () => {
 // import { preSignup } from "../../../Backend-Coding4u-main/controllers/auth.js";
 
 // Correct: call the backend API
-const handleSignup = async (userData) => {
-  const res = await fetch("https://your-backend-domain.com/api/pre-signup", {
+// const handleSignup = async (userData) => {
+//   const res = await fetch("https://your-backend-domain.com/api/pre-signup", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify(userData),
+//   });
+
+//   const data = await res.json();
+//   return data;
+// };
+
+const handleSignup = async (formData) => {
+  const res = await fetch("/api/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData),
+    body: JSON.stringify(formData),
   });
 
   const data = await res.json();
-  return data;
+  if (res.ok) {
+    console.log("User created", data.user);
+  } else {
+    console.error(data.error);
+  }
 };
 
-
 startServer();
+handleSignup();
