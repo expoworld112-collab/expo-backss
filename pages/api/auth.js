@@ -1,6 +1,6 @@
 // pages/auth.js
 import { useState } from "react";
-
+import nodemailer from "nodemailer"
 export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
